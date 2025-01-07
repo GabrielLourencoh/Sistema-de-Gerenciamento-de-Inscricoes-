@@ -31,12 +31,21 @@ class SubscriptionSevice:
             statement = select(Payments).where(Payments.subscription_id == id)
             payments = session.exec(statement).all()
 
-            for payment in payments:
-                session.delete(payment)
+            if payments:
+                choice = input("Essa assinatura possui pagamentos registrados. Deseja excluí-los também? (Y/N): ").strip().upper()
+                if choice == "Y":
+                    for payment in payments:
+                        session.delete(payment)
 
             session.delete(subscription)
             session.commit()
-            return f"Assinatura e pagamentos relacionados removidos com sucesso!"
+
+            if payments and choice == "Y":
+                return f"Assinatura e pagamentos relacionados removidos com sucesso!"
+            elif payments:
+                return f"Assinatura removida, mas pagamentos foram mantidos!"
+            else:
+                return f"Assinatura removida com sucesso!"
         
     def _has_pay(self, results):
         for result in results:
